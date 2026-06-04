@@ -40,6 +40,16 @@
 
 ## 설치
 
+### 다운로드
+
+[**Releases**](https://github.com/yoonsoli/claude-usage-menubar/releases) 페이지에서 최신 `ClaudeUsage.app`을 받아 압축을 풀고 `/Applications`로 옮기세요.
+
+이 앱은 애드혹(ad-hoc) 서명이라(Developer ID 없음) 첫 실행 때 Gatekeeper가 막습니다 — 앱을 우클릭 → **열기** → **열기**, 또는 다음을 실행하세요:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/ClaudeUsage.app
+```
+
 ### 소스에서 빌드
 
 ```sh
@@ -48,10 +58,6 @@ cd claude-usage-menubar
 ./build_app.sh                 # 메뉴바 앱 + 위젯을 ClaudeUsage.app 번들로 빌드
 open ClaudeUsage.app           # 실행 (최초 1회 claude.ai 로그인 창이 뜸)
 ```
-
-계속 쓰려면 `ClaudeUsage.app`을 `/Applications`로 옮기세요.
-
-> 아직 프리빌트 릴리스는 없습니다 — 당분간 소스에서 빌드해 주세요.
 
 ## 사용법
 

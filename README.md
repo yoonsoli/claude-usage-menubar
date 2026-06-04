@@ -40,6 +40,16 @@ Built with native **Liquid Glass** design and Claude's signature coral accent.
 
 ## Installation
 
+### Download
+
+Grab the latest `ClaudeUsage.app` from the [**Releases**](https://github.com/yoonsoli/claude-usage-menubar/releases) page, unzip, and move it to `/Applications`.
+
+The app is ad‑hoc signed (no Developer ID), so Gatekeeper blocks it on first launch — right‑click the app → **Open** → **Open**, or run:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/ClaudeUsage.app
+```
+
 ### Build from source
 
 ```sh
@@ -48,10 +58,6 @@ cd claude-usage-menubar
 ./build_app.sh                 # builds the menu bar app + widget into ClaudeUsage.app
 open ClaudeUsage.app           # launch (a claude.ai login window appears once)
 ```
-
-To keep it around, drag `ClaudeUsage.app` into `/Applications`.
-
-> No prebuilt release is published yet — build from source for now.
 
 ## Usage
 
