@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Swift / SwiftPM 빌드 산출물
+.build/
+.swiftpm/
+Package.resolved
+
+# 빌드 결과물 (스크립트로 재생성됨)
+ClaudeUsage.app/
+build_widget/
+
+# OMC / 에디터
+.omc/
+.idea/
+*.xcuserstate
