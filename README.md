@@ -40,9 +40,17 @@ Built with native **Liquid Glass** design and Claude's signature coral accent.
 
 ## Installation
 
-### Download
+### Quick install (one line)
 
-Grab the latest `ClaudeUsage.app` from the [**Releases**](https://github.com/yoonsoli/claude-usage-menubar/releases) page, unzip, and move it to `/Applications`.
+```sh
+curl -fsSL https://raw.githubusercontent.com/yoonsoli/claude-usage-menubar/main/install.sh | bash
+```
+
+Downloads the latest release into `/Applications`, clears the quarantine flag, and launches it. Review it first if you like: [`install.sh`](install.sh).
+
+### Download manually
+
+Grab `ClaudeUsage.dmg` (or `.zip`) from the [**Releases**](https://github.com/yoonsoli/claude-usage-menubar/releases) page, then drag `ClaudeUsage.app` to `/Applications`.
 
 The app is ad‑hoc signed (no Developer ID), so Gatekeeper blocks it on first launch — right‑click the app → **Open** → **Open**, or run:
 
