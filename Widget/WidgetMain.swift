@@ -45,13 +45,13 @@ struct ClaudeWidgetView: View {
                     .rotationEffect(.degrees(-90))
                 VStack(spacing: 0) {
                     Text(fiveText).font(.title2.weight(.bold)).monospacedDigit()
-                    Text("5시간").font(.system(size: 9)).foregroundStyle(.secondary)
+                    Text(ko ? "5시간" : "5-hour").font(.system(size: 9)).foregroundStyle(.secondary)
                 }
             }
 
             VStack(spacing: 2) {
                 HStack {
-                    Text("주간").font(.system(size: 9))
+                    Text(ko ? "주간" : "Weekly").font(.system(size: 9))
                     Spacer()
                     Text(weekText).font(.system(size: 9)).monospacedDigit()
                 }
@@ -71,6 +71,7 @@ struct ClaudeWidgetView: View {
         }
     }
 
+    private var ko: Bool { AppLanguage.current == .korean }
     private var five: CGFloat { CGFloat(entry.snapshot?.fiveHourUsed ?? 0) }
     private var week: CGFloat { CGFloat(entry.snapshot?.weeklyUsed ?? 0) }
     private var fiveColor: Color { five > 0.85 ? .red : coral }
@@ -110,8 +111,10 @@ struct ClaudeUsageWidget: Widget {
         StaticConfiguration(kind: "ClaudeUsageWidget", provider: Provider()) { entry in
             ClaudeWidgetView(entry: entry)
         }
-        .configurationDisplayName("Claude 사용량")
-        .description("5시간·주간 사용량을 한눈에")
+        .configurationDisplayName(AppLanguage.current == .korean ? "Claude 사용량" : "Claude Usage")
+        .description(AppLanguage.current == .korean
+            ? "5시간·주간 사용량을 한눈에"
+            : "5-hour and weekly usage at a glance")
         .supportedFamilies([.systemSmall])
     }
 }

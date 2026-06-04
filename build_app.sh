@@ -45,7 +45,7 @@ swiftc \
     -target "${ARCH}-apple-macos26.0" \
     -parse-as-library -O \
     -framework WidgetKit -framework SwiftUI \
-    Widget/WidgetMain.swift Sources/ClaudeUsage/UsageSnapshot.swift \
+    Widget/WidgetMain.swift Sources/ClaudeUsage/UsageSnapshot.swift Sources/ClaudeUsage/Localization.swift \
     -o "$WBIN"
 
 echo "[4/5] .appex 번들 내장…"
