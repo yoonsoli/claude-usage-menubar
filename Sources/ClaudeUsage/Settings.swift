@@ -23,8 +23,11 @@ enum LaunchAtLogin {
 /// 설정 화면 — 자동 실행 + 로그아웃.
 struct SettingsView: View {
     @ObservedObject var monitor: UsageMonitor
+    @ObservedObject private var loc = Localizer.shared
     var onBack: () -> Void
     @State private var launchAtLogin = LaunchAtLogin.isEnabled
+
+    private let coral = Color(red: 0xD9 / 255, green: 0x77 / 255, blue: 0x57 / 255)
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -33,15 +36,32 @@ struct SettingsView: View {
                     Image(systemName: "chevron.left")
                 }
                 .buttonStyle(.borderless)
-                Text("설정").font(.headline)
+                Text(loc.t(.settingsTitle)).font(.headline)
                 Spacer()
             }
 
+            HStack {
+                Text(loc.t(.language))
+                Spacer()
+                Picker("", selection: Binding(
+                    get: { loc.language },
+                    set: { loc.setLanguage($0) }
+                )) {
+                    ForEach(AppLanguage.allCases) { lang in
+                        Text(lang.displayName).tag(lang)
+                    }
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .fixedSize()
+                .tint(coral)
+            }
+
             Toggle(isOn: $launchAtLogin) {
-                Text("로그인 시 자동 실행")
+                Text(loc.t(.launchAtLogin))
             }
             .toggleStyle(.switch)
-            .tint(Color(red: 0xD9 / 255, green: 0x77 / 255, blue: 0x57 / 255))
+            .tint(coral)
             .onChange(of: launchAtLogin) { _, newValue in
                 LaunchAtLogin.set(newValue)
             }
@@ -50,10 +70,10 @@ struct SettingsView: View {
                 get: { monitor.notifyEnabled },
                 set: { monitor.setNotifyEnabled($0) }
             )) {
-                Text("세션 종료 30분 전 알림")
+                Text(loc.t(.notify30))
             }
             .toggleStyle(.switch)
-            .tint(Color(red: 0xD9 / 255, green: 0x77 / 255, blue: 0x57 / 255))
+            .tint(coral)
 
             Divider().opacity(0.4)
 
@@ -61,7 +81,7 @@ struct SettingsView: View {
                 monitor.logout()
                 onBack()
             } label: {
-                Label("로그아웃", systemImage: "rectangle.portrait.and.arrow.right")
+                Label(loc.t(.logout), systemImage: "rectangle.portrait.and.arrow.right")
             }
             .buttonStyle(.borderless)
         }

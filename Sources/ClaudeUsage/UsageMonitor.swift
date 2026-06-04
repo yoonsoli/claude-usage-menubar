@@ -15,7 +15,7 @@ final class UsageMonitor: ObservableObject {
     @Published var probeURL: String = ""          // 마지막으로 찔러본 엔드포인트
     @Published var probeRaw: String = ""          // 그 원본 응답(파싱 실패해도 표시)
     @Published var needsLogin = false
-    @Published var status = "초기화 중…"
+    @Published var statusKey: StatusKey = .initializing
     @Published var notifyEnabled = UserDefaults.standard.bool(forKey: "notify30")
     private var lastScheduledReset: Date?
 
@@ -63,7 +63,7 @@ final class UsageMonitor: ObservableObject {
         window = win
         parkOffscreen()
 
-        status = "claude.ai 로딩 중…"
+        statusKey = .loading
         wv.load(URLRequest(url: URL(string: "https://claude.ai/")!))
 
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
@@ -137,13 +137,13 @@ final class UsageMonitor: ObservableObject {
     func logout() {
         usage = nil
         lastUsageURL = nil
-        status = "로그아웃 중…"
+        statusKey = .loggingOut
         let store = WKWebsiteDataStore.default()
         let types = WKWebsiteDataStore.allWebsiteDataTypes()
         store.removeData(ofTypes: types, modifiedSince: .distantPast) { [weak self] in
             Task { @MainActor in
                 guard let self else { return }
-                self.status = "로그아웃됨"
+                self.statusKey = .loggedOut
                 self.webView?.load(URLRequest(url: URL(string: "https://claude.ai/")!))
                 self.showLogin()
             }
@@ -181,11 +181,11 @@ final class UsageMonitor: ObservableObject {
     fileprivate func didFinishNavigation(url: URL?) {
         let s = url?.absoluteString ?? ""
         if s.contains("/login") || s.contains("/auth") || s.contains("oauth") {
-            status = "로그인이 필요합니다"
+            statusKey = .needLogin
             showLogin()
         } else if s.contains("claude.ai") {
             if needsLogin { hideLogin() }
-            if usage == nil { status = "사용량 수집 중…" }
+            if usage == nil { statusKey = .collecting }
             // claude.ai는 홈에서 /usage를 자동 호출하지 않으므로 직접 유발한다.
             // org id가 다른 XHR로 노출될 시간을 주기 위해 잠시 뒤 호출.
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
@@ -199,7 +199,7 @@ final class UsageMonitor: ObservableObject {
         let url = dict["url"] as? String ?? ""
 
         if type == "authError" {
-            status = "세션 만료 · 로그인 필요"
+            statusKey = .sessionExpired
             showLogin()
             return
         }
@@ -223,8 +223,7 @@ final class UsageMonitor: ObservableObject {
             guard parsed.fiveHour != nil || parsed.weekly != nil else { return }
             lastUsageURL = url
             usage = parsed
-            let f = DateFormatter(); f.dateFormat = "HH:mm:ss"
-            status = "업데이트됨 · \(f.string(from: .now))"
+            statusKey = .updated(.now)
             if needsLogin { hideLogin() }
             updateSessionNotification()
             writeWidgetSnapshot()

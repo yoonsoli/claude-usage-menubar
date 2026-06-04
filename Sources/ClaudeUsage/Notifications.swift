@@ -18,9 +18,10 @@ enum SessionNotifier {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
 
+        let ko = Localizer.shared.language == .korean
         let content = UNMutableNotificationContent()
-        content.title = "Claude 5시간 세션"
-        content.body = "세션 종료까지 30분 남았어요."
+        content.title = ko ? "Claude 5시간 세션" : "Claude 5-hour session"
+        content.body = ko ? "세션 종료까지 30분 남았어요." : "30 minutes left until your session ends."
         content.sound = .default
 
         let fireDate = resetAt.addingTimeInterval(-lead)
