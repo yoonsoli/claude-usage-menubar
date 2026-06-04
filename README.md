@@ -11,6 +11,8 @@ Built with native **Liquid Glass** design and Claude's signature coral accent.
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Languages](https://img.shields.io/badge/i18n-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4-success)
 
+**English** · [한국어](README.ko.md)
+
 <!-- 스크린샷을 docs/ 에 추가한 뒤 아래 경로를 바꿔주세요 -->
 <!-- <img src="docs/screenshot.png" width="420" alt="Claude Usage menu bar panel"> -->
 
