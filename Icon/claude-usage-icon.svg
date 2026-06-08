@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Claude Usage Monitor — App Icon -->
+
+  <!-- Background: dark warm rounded square -->
+  <rect width="1024" height="1024" rx="229" fill="#131109"/>
+
+  <!-- Arc track (subtle depth layer) -->
+  <path d="M 744 280 A 328 328 0 1 0 744 744"
+        fill="none" stroke="#2E2820" stroke-width="76" stroke-linecap="round"/>
+
+  <!-- Main C arc in coral -->
+  <path d="M 744 280 A 328 328 0 1 0 744 744"
+        fill="none" stroke="#D85A30" stroke-width="76" stroke-linecap="round"/>
+
+  <!-- Usage bars: amber, left-aligned, decreasing width -->
+  <rect x="340" y="411" width="346" height="57" rx="29" fill="#FAC775"/>
+  <rect x="340" y="483" width="259" height="57" rx="29" fill="#FAC775" opacity="0.62"/>
+  <rect x="340" y="555" width="173" height="57" rx="29" fill="#FAC775" opacity="0.36"/>
+</svg>
