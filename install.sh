@@ -17,10 +17,10 @@ APP="ClaudeUsage.app"
 URL="https://github.com/${REPO}/releases/latest/download/ClaudeUsage.zip"
 DEST="/Applications"
 
-# Require macOS 26 (Tahoe) or later.
+# Require macOS 15 (Sequoia) or later.
 major="$(sw_vers -productVersion | cut -d. -f1)"
-if [ "${major:-0}" -lt 26 ]; then
-  echo "This app requires macOS 26 (Tahoe) or later. You have $(sw_vers -productVersion)." >&2
+if [ "${major:-0}" -lt 15 ]; then
+  echo "This app requires macOS 15 (Sequoia) or later. You have $(sw_vers -productVersion)." >&2
   exit 1
 fi
 

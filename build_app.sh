@@ -36,7 +36,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>CFBundleIconFile</key>        <string>AppIcon</string>
     <key>CFBundleIconName</key>        <string>AppIcon</string>
     <key>LSUIElement</key>            <true/>
-    <key>LSMinimumSystemVersion</key>  <string>26.0</string>
+    <key>LSMinimumSystemVersion</key>  <string>15.0</string>
     <key>NSPrincipalClass</key>        <string>NSApplication</string>
     <key>NSHighResolutionCapable</key> <true/>
 </dict>
@@ -48,7 +48,7 @@ WBIN="build_widget/ClaudeUsageWidget"
 mkdir -p build_widget
 swiftc \
     -sdk "$SDK" \
-    -target "${ARCH}-apple-macos26.0" \
+    -target "${ARCH}-apple-macos15.0" \
     -parse-as-library -O \
     -framework WidgetKit -framework SwiftUI \
     Widget/WidgetMain.swift Sources/ClaudeUsage/UsageSnapshot.swift Sources/ClaudeUsage/Localization.swift \
@@ -73,7 +73,7 @@ cat > "$APPEX/Contents/Info.plist" <<'PLIST'
     <key>CFBundlePackageType</key>        <string>XPC!</string>
     <key>CFBundleShortVersionString</key> <string>0.1</string>
     <key>CFBundleVersion</key>            <string>1</string>
-    <key>LSMinimumSystemVersion</key>     <string>26.0</string>
+    <key>LSMinimumSystemVersion</key>     <string>15.0</string>
     <key>NSExtension</key>
     <dict>
         <key>NSExtensionPointIdentifier</key>

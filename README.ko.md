@@ -6,7 +6,7 @@
 
 네이티브 **Liquid Glass** 디자인과 Claude 시그니처 코랄 컬러로 만들었습니다.
 
-![Platform](https://img.shields.io/badge/platform-macOS%2026%2B-black?logo=apple)
+![Platform](https://img.shields.io/badge/platform-macOS%2015%2B-black?logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-6.2-orange?logo=swift)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Languages](https://img.shields.io/badge/i18n-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4-success)
@@ -35,7 +35,7 @@
 
 ## 요구 사항
 
-- **macOS 26 (Tahoe)** 이상 — UI가 네이티브 Liquid Glass API를 사용합니다
+- **macOS 15 (Sequoia)** 이상. **macOS 26 (Tahoe)+** 에서는 네이티브 Liquid Glass UI를, 그 이하 버전에서는 프로스티드 머티리얼 룩으로 대체됩니다.
 - 빌드 시: **Xcode 26** 툴체인(Swift 6.2)
 
 ## 설치

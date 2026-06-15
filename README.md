@@ -6,7 +6,7 @@
 
 Built with native **Liquid Glass** design and Claude's signature coral accent.
 
-![Platform](https://img.shields.io/badge/platform-macOS%2026%2B-black?logo=apple)
+![Platform](https://img.shields.io/badge/platform-macOS%2015%2B-black?logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-6.2-orange?logo=swift)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Languages](https://img.shields.io/badge/i18n-English%20%C2%B7%20%ED%95%9C%EA%B5%AD%EC%96%B4-success)
@@ -35,7 +35,7 @@ Built with native **Liquid Glass** design and Claude's signature coral accent.
 
 ## Requirements
 
-- **macOS 26 (Tahoe)** or later — the UI uses the native Liquid Glass APIs
+- **macOS 15 (Sequoia)** or later. On **macOS 26 (Tahoe)+** the UI uses the native Liquid Glass APIs; on earlier versions it falls back to a frosted‑material look.
 - To build: the **Xcode 26** toolchain (Swift 6.2)
 
 ## Installation

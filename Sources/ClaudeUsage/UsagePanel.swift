@@ -18,11 +18,11 @@ struct UsagePanel: View {
                 header
 
                 if let usage = monitor.usage {
-                    GlassEffectContainer(spacing: 14) {
-                        HStack(spacing: 14) {
-                            GaugeCard(title: loc.t(.fiveHour), window: usage.fiveHour)
-                            GaugeCard(title: loc.t(.weekly), window: usage.weekly)
-                        }
+                    // macOS 26+에서는 Liquid Glass 컨테이너로 묶고, Sequoia에서는 그대로 배치.
+                    if #available(macOS 26.0, *) {
+                        GlassEffectContainer(spacing: 14) { gaugeRow(usage) }
+                    } else {
+                        gaugeRow(usage)
                     }
                     Text("⚠︎ \(loc.t(.unofficialEstimate)) · \(monitor.statusKey.string(loc.language))")
                         .font(.caption2)
@@ -38,6 +38,13 @@ struct UsagePanel: View {
         }
         .padding(18)
         .frame(width: 320)
+    }
+
+    private func gaugeRow(_ usage: CapturedUsage) -> some View {
+        HStack(spacing: 14) {
+            GaugeCard(title: loc.t(.fiveHour), window: usage.fiveHour)
+            GaugeCard(title: loc.t(.weekly), window: usage.weekly)
+        }
     }
 
     private var header: some View {
@@ -66,7 +73,7 @@ struct UsagePanel: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 26)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .liquidGlass(cornerRadius: 22)
     }
 
     private var footer: some View {
@@ -128,7 +135,7 @@ struct GaugeCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding(16)
-        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .liquidGlass(cornerRadius: 22)
     }
 
     private var used: CGFloat { CGFloat(window?.usedFraction ?? 0) }
@@ -159,5 +166,19 @@ struct GaugeCard: View {
         rel.unitsStyle = .short
         rel.locale = loc.language.locale
         return rel.localizedString(for: reset, relativeTo: .now)
+    }
+}
+
+private extension View {
+    /// macOS 26+에서는 네이티브 Liquid Glass를, 그 이하(Sequoia 등)에서는
+    /// 가장 가까운 시각 효과인 ultraThinMaterial 배경을 적용한다.
+    @ViewBuilder
+    func liquidGlass(cornerRadius: CGFloat) -> some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        if #available(macOS 26.0, *) {
+            glassEffect(.regular, in: shape)
+        } else {
+            background(.ultraThinMaterial, in: shape)
+        }
     }
 }

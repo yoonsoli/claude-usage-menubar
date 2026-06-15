@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "ClaudeUsage",
-    platforms: [.macOS(.v26)],
+    platforms: [.macOS(.v15)],   // Sequoia 이상 지원(Liquid Glass는 macOS 26+에서만 적용)
     targets: [
         .executableTarget(
             name: "ClaudeUsage",
