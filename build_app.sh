@@ -1,15 +1,30 @@
 #!/bin/bash
 # ClaudeUsage 메뉴바 앱 + 위젯 익스텐션을 .app 번들로 빌드한다.
+#
+# 사용법: ./build_app.sh [tahoe|sequoia]   (기본 tahoe)
+#   tahoe   : macOS 26 타깃 — 네이티브 Liquid Glass
+#   sequoia : macOS 15 타깃 — ultraThinMaterial 폴백
+#
+# 두 변형은 배포 타깃(LSMinimumSystemVersion / -target minos)만 다르다.
+# 소스의 `if #available(macOS 26.0, *)` 가드가 런타임 효과를 결정한다.
 set -e
 cd "$(dirname "$0")"
+
+VARIANT="${1:-tahoe}"
+case "$VARIANT" in
+    tahoe)   MINOS="26.0" ;;
+    sequoia) MINOS="15.0" ;;
+    *) echo "사용법: $0 [tahoe|sequoia]" >&2; exit 1 ;;
+esac
 
 APP="ClaudeUsage.app"
 SDK="$(xcrun --sdk macosx --show-sdk-path)"
 ARCH="$(uname -m)"
 GROUP="group.com.claudeusage.shared"
+TARGET="${ARCH}-apple-macos${MINOS}"
 
-echo "[1/5] 메뉴바 앱(Swift) 릴리스 빌드…"
-swift build -c release
+echo "[1/5] 메뉴바 앱(Swift) 릴리스 빌드… (${VARIANT}, macOS ${MINOS})"
+swift build -c release -Xswiftc -target -Xswiftc "$TARGET"
 BIN=".build/release/ClaudeUsage"
 
 echo "[2/5] .app 번들 구성…"
@@ -21,7 +36,7 @@ cp "$BIN" "$APP/Contents/MacOS/ClaudeUsage"
 [ -f Icon/AppIcon.icns ] || ./make_icon.sh
 cp Icon/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 
-cat > "$APP/Contents/Info.plist" <<'PLIST'
+cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -36,19 +51,19 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>CFBundleIconFile</key>        <string>AppIcon</string>
     <key>CFBundleIconName</key>        <string>AppIcon</string>
     <key>LSUIElement</key>            <true/>
-    <key>LSMinimumSystemVersion</key>  <string>15.0</string>
+    <key>LSMinimumSystemVersion</key>  <string>${MINOS}</string>
     <key>NSPrincipalClass</key>        <string>NSApplication</string>
     <key>NSHighResolutionCapable</key> <true/>
 </dict>
 </plist>
 PLIST
 
-echo "[3/5] 위젯 익스텐션(WidgetKit) 컴파일… ($ARCH)"
+echo "[3/5] 위젯 익스텐션(WidgetKit) 컴파일… ($ARCH, macOS ${MINOS})"
 WBIN="build_widget/ClaudeUsageWidget"
 mkdir -p build_widget
 swiftc \
     -sdk "$SDK" \
-    -target "${ARCH}-apple-macos15.0" \
+    -target "$TARGET" \
     -parse-as-library -O \
     -framework WidgetKit -framework SwiftUI \
     Widget/WidgetMain.swift Sources/ClaudeUsage/UsageSnapshot.swift Sources/ClaudeUsage/Localization.swift \
@@ -59,7 +74,7 @@ APPEX="$APP/Contents/PlugIns/ClaudeUsageWidget.appex"
 mkdir -p "$APPEX/Contents/MacOS"
 cp "$WBIN" "$APPEX/Contents/MacOS/ClaudeUsageWidget"
 
-cat > "$APPEX/Contents/Info.plist" <<'PLIST'
+cat > "$APPEX/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -73,7 +88,7 @@ cat > "$APPEX/Contents/Info.plist" <<'PLIST'
     <key>CFBundlePackageType</key>        <string>XPC!</string>
     <key>CFBundleShortVersionString</key> <string>0.1</string>
     <key>CFBundleVersion</key>            <string>1</string>
-    <key>LSMinimumSystemVersion</key>     <string>15.0</string>
+    <key>LSMinimumSystemVersion</key>     <string>${MINOS}</string>
     <key>NSExtension</key>
     <dict>
         <key>NSExtensionPointIdentifier</key>
@@ -101,4 +116,4 @@ codesign --force --sign - --entitlements build_widget/shared.entitlements "$APPE
 codesign --force --deep --sign - --entitlements build_widget/shared.entitlements "$APP" 2>/dev/null
 echo "  서명 검증:" && codesign -v "$APP" 2>&1 && echo "  OK"
 
-echo "✅ 완료: $APP  (메뉴바 앱 + 정사각형 위젯)"
+echo "✅ 완료: $APP  (${VARIANT}, macOS ${MINOS}+ · 메뉴바 앱 + 정사각형 위젯)"

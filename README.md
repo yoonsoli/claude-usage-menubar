@@ -46,11 +46,16 @@ Built with native **Liquid Glass** design and Claude's signature coral accent.
 curl -fsSL https://raw.githubusercontent.com/yoonsoli/claude-usage-menubar/main/install.sh | bash
 ```
 
-Downloads the latest release into `/Applications`, clears the quarantine flag, and launches it. Review it first if you like: [`install.sh`](install.sh).
+It **auto‑detects your macOS** and installs the matching build (Tahoe on macOS 26+, Sequoia on macOS 15+), clears the quarantine flag, and launches it. Review it first if you like: [`install.sh`](install.sh).
 
 ### Download manually
 
-Grab `ClaudeUsage.dmg` (or `.zip`) from the [**Releases**](https://github.com/yoonsoli/claude-usage-menubar/releases) page, then drag `ClaudeUsage.app` to `/Applications`.
+There are two builds — pick the one for your macOS on the [**Releases**](https://github.com/yoonsoli/claude-usage-menubar/releases) page, then drag `ClaudeUsage.app` to `/Applications`:
+
+| Your macOS | Download | UI |
+|---|---|---|
+| **26 (Tahoe)** or later | `ClaudeUsage-Tahoe.dmg` / `.zip` | native Liquid Glass |
+| **15–25 (Sequoia+)** | `ClaudeUsage-Sequoia.dmg` / `.zip` | frosted‑material fallback |
 
 The app is ad‑hoc signed (no Developer ID), so Gatekeeper blocks it on first launch — right‑click the app → **Open** → **Open**, or run:
 
@@ -63,7 +68,7 @@ xattr -dr com.apple.quarantine /Applications/ClaudeUsage.app
 ```sh
 git clone https://github.com/yoonsoli/claude-usage-menubar.git
 cd claude-usage-menubar
-./build_app.sh                 # builds the menu bar app + widget into ClaudeUsage.app
+./build_app.sh tahoe           # macOS 26 build (or: ./build_app.sh sequoia)
 open ClaudeUsage.app           # launch (a claude.ai login window appears once)
 ```
 

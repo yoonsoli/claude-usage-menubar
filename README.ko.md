@@ -46,11 +46,16 @@
 curl -fsSL https://raw.githubusercontent.com/yoonsoli/claude-usage-menubar/main/install.sh | bash
 ```
 
-최신 릴리스를 `/Applications`에 설치하고, quarantine 속성을 제거한 뒤 바로 실행합니다. 내용이 궁금하면 먼저 확인하세요: [`install.sh`](install.sh).
+**현재 macOS를 자동 감지**해 맞는 빌드를 설치합니다(26 Tahoe+ → Tahoe, 15 Sequoia+ → Sequoia). quarantine 속성을 제거한 뒤 바로 실행합니다. 내용이 궁금하면 먼저 확인하세요: [`install.sh`](install.sh).
 
 ### 수동 다운로드
 
-[**Releases**](https://github.com/yoonsoli/claude-usage-menubar/releases) 페이지에서 `ClaudeUsage.dmg`(또는 `.zip`)를 받아 `ClaudeUsage.app`을 `/Applications`로 드래그하세요.
+빌드가 두 가지입니다 — [**Releases**](https://github.com/yoonsoli/claude-usage-menubar/releases) 페이지에서 본인 macOS에 맞는 걸 받아 `ClaudeUsage.app`을 `/Applications`로 드래그하세요:
+
+| 내 macOS | 다운로드 | UI |
+|---|---|---|
+| **26 (Tahoe)** 이상 | `ClaudeUsage-Tahoe.dmg` / `.zip` | 네이티브 Liquid Glass |
+| **15~25 (Sequoia+)** | `ClaudeUsage-Sequoia.dmg` / `.zip` | 프로스티드 머티리얼 폴백 |
 
 이 앱은 애드혹(ad-hoc) 서명이라(Developer ID 없음) 첫 실행 때 Gatekeeper가 막습니다 — 앱을 우클릭 → **열기** → **열기**, 또는 다음을 실행하세요:
 
@@ -63,7 +68,7 @@ xattr -dr com.apple.quarantine /Applications/ClaudeUsage.app
 ```sh
 git clone https://github.com/yoonsoli/claude-usage-menubar.git
 cd claude-usage-menubar
-./build_app.sh                 # 메뉴바 앱 + 위젯을 ClaudeUsage.app 번들로 빌드
+./build_app.sh tahoe           # macOS 26 빌드 (또는: ./build_app.sh sequoia)
 open ClaudeUsage.app           # 실행 (최초 1회 claude.ai 로그인 창이 뜸)
 ```
 

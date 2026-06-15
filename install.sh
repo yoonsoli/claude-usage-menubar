@@ -14,15 +14,23 @@ set -euo pipefail
 
 REPO="yoonsoli/claude-usage-menubar"
 APP="ClaudeUsage.app"
-URL="https://github.com/${REPO}/releases/latest/download/ClaudeUsage.zip"
 DEST="/Applications"
 
-# Require macOS 15 (Sequoia) or later.
+# Pick the build that matches this macOS:
+#   macOS 26 (Tahoe)+  -> Tahoe build  (native Liquid Glass)
+#   macOS 15 (Sequoia) -> Sequoia build (frosted-material fallback)
+#   older              -> unsupported
 major="$(sw_vers -productVersion | cut -d. -f1)"
-if [ "${major:-0}" -lt 15 ]; then
+if [ "${major:-0}" -ge 26 ]; then
+  VARIANT="Tahoe"
+elif [ "${major:-0}" -ge 15 ]; then
+  VARIANT="Sequoia"
+else
   echo "This app requires macOS 15 (Sequoia) or later. You have $(sw_vers -productVersion)." >&2
   exit 1
 fi
+URL="https://github.com/${REPO}/releases/latest/download/ClaudeUsage-${VARIANT}.zip"
+echo "Detected macOS $(sw_vers -productVersion) -> ${VARIANT} build."
 
 # Use sudo only if /Applications is not writable.
 SUDO=""
