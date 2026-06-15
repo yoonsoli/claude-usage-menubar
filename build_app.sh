@@ -5,27 +5,28 @@
 #   tahoe   : macOS 26 타깃 — 네이티브 Liquid Glass
 #   sequoia : macOS 15 타깃 — ultraThinMaterial 폴백
 #
-# 두 변형은 배포 타깃(LSMinimumSystemVersion / -target minos)만 다르다.
+# 두 변형은 배포 타깃(LSMinimumSystemVersion / minos)만 다르다.
 # 소스의 `if #available(macOS 26.0, *)` 가드가 런타임 효과를 결정한다.
+# 바이너리는 항상 유니버설(arm64 + x86_64) — Apple Silicon·Intel 모두 실행.
 set -e
 cd "$(dirname "$0")"
 
 VARIANT="${1:-tahoe}"
 case "$VARIANT" in
-    tahoe)   MINOS="26.0" ;;
-    sequoia) MINOS="15.0" ;;
+    tahoe)   MINOS="26.0"; CU_MIN="26" ;;
+    sequoia) MINOS="15.0"; CU_MIN="15" ;;
     *) echo "사용법: $0 [tahoe|sequoia]" >&2; exit 1 ;;
 esac
 
 APP="ClaudeUsage.app"
 SDK="$(xcrun --sdk macosx --show-sdk-path)"
-ARCH="$(uname -m)"
 GROUP="group.com.claudeusage.shared"
-TARGET="${ARCH}-apple-macos${MINOS}"
 
-echo "[1/5] 메뉴바 앱(Swift) 릴리스 빌드… (${VARIANT}, macOS ${MINOS})"
-swift build -c release -Xswiftc -target -Xswiftc "$TARGET"
-BIN=".build/release/ClaudeUsage"
+echo "[1/5] 메뉴바 앱(Swift) 릴리스 빌드… (${VARIANT}, macOS ${MINOS}, universal)"
+# 배포 타깃은 Package.swift가 CU_MACOS_MIN 환경변수로 결정한다(.v26 / .v15).
+# --manifest-cache none: 변형 전환 시 캐시된 매니페스트가 재사용되지 않도록 한다.
+CU_MACOS_MIN="$CU_MIN" swift build -c release --arch arm64 --arch x86_64 --manifest-cache none
+BIN=".build/apple/Products/Release/ClaudeUsage"
 
 echo "[2/5] .app 번들 구성…"
 rm -rf "$APP"
@@ -58,16 +59,20 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 </plist>
 PLIST
 
-echo "[3/5] 위젯 익스텐션(WidgetKit) 컴파일… ($ARCH, macOS ${MINOS})"
+echo "[3/5] 위젯 익스텐션(WidgetKit) 컴파일… (universal, macOS ${MINOS})"
 WBIN="build_widget/ClaudeUsageWidget"
 mkdir -p build_widget
-swiftc \
-    -sdk "$SDK" \
-    -target "$TARGET" \
-    -parse-as-library -O \
-    -framework WidgetKit -framework SwiftUI \
-    Widget/WidgetMain.swift Sources/ClaudeUsage/UsageSnapshot.swift Sources/ClaudeUsage/Localization.swift \
-    -o "$WBIN"
+WSRC=(Widget/WidgetMain.swift Sources/ClaudeUsage/UsageSnapshot.swift Sources/ClaudeUsage/Localization.swift)
+for arch in arm64 x86_64; do
+    swiftc \
+        -sdk "$SDK" \
+        -target "${arch}-apple-macos${MINOS}" \
+        -parse-as-library -O \
+        -framework WidgetKit -framework SwiftUI \
+        "${WSRC[@]}" \
+        -o "${WBIN}-${arch}"
+done
+lipo -create "${WBIN}-arm64" "${WBIN}-x86_64" -o "$WBIN"
 
 echo "[4/5] .appex 번들 내장…"
 APPEX="$APP/Contents/PlugIns/ClaudeUsageWidget.appex"
@@ -116,4 +121,4 @@ codesign --force --sign - --entitlements build_widget/shared.entitlements "$APPE
 codesign --force --deep --sign - --entitlements build_widget/shared.entitlements "$APP" 2>/dev/null
 echo "  서명 검증:" && codesign -v "$APP" 2>&1 && echo "  OK"
 
-echo "✅ 완료: $APP  (${VARIANT}, macOS ${MINOS}+ · 메뉴바 앱 + 정사각형 위젯)"
+echo "✅ 완료: $APP  (${VARIANT}, macOS ${MINOS}+ · universal arm64+x86_64)"
