@@ -41,6 +41,30 @@ enum UsageParser {
 
         guard let root = try? JSONSerialization.jsonObject(with: jsonData) else { return result }
 
+        // 1) 알려진 claude.ai 스키마를 우선 직접 파싱한다:
+        //    { "five_hour": {utilization, resets_at, …}, "seven_day": {…}, "limits": [{kind,group,percent,resets_at}] }
+        if let dict = root as? [String: Any] {
+            if let fh = dict["five_hour"] as? [String: Any] { result.fiveHour = windowFromKnown(fh) }
+            if let sd = dict["seven_day"] as? [String: Any] { result.weekly = windowFromKnown(sd) }
+
+            // five_hour/seven_day 가 없거나 비면 limits 배열로 보완.
+            if (result.fiveHour == nil || result.weekly == nil),
+               let limits = dict["limits"] as? [[String: Any]] {
+                for lim in limits {
+                    let kind = (lim["kind"] as? String ?? "").lowercased()
+                    let group = (lim["group"] as? String ?? "").lowercased()
+                    guard let w = windowFromLimit(lim) else { continue }
+                    if result.fiveHour == nil, kind == "session" || group == "session" {
+                        result.fiveHour = w
+                    } else if result.weekly == nil, group == "weekly" || kind.contains("weekly") {
+                        result.weekly = w
+                    }
+                }
+            }
+        }
+        if result.fiveHour != nil || result.weekly != nil { return result }
+
+        // 2) 폴백: 구조를 모를 때 키 휴리스틱으로 재귀 탐색한다.
         var windows: [(label: String, window: UsageWindow)] = []
         walk(root, label: "root", into: &windows)
 
@@ -64,6 +88,22 @@ enum UsageParser {
         return result
     }
 
+    /// five_hour / seven_day 객체: utilization(0~100 퍼센트) + resets_at.
+    private static func windowFromKnown(_ dict: [String: Any]) -> UsageWindow? {
+        var w = UsageWindow()
+        if let v = dict["utilization"], let u = number(v) { w.used = u; w.limit = 100 }
+        if let r = dict["resets_at"] { w.resetsAt = date(r) }
+        return (w.usedFraction != nil || w.resetsAt != nil) ? w : nil
+    }
+
+    /// limits 배열 원소: percent(0~100) + resets_at.
+    private static func windowFromLimit(_ dict: [String: Any]) -> UsageWindow? {
+        var w = UsageWindow()
+        if let v = dict["percent"], let p = number(v) { w.used = p; w.limit = 100 }
+        if let r = dict["resets_at"] { w.resetsAt = date(r) }
+        return (w.usedFraction != nil || w.resetsAt != nil) ? w : nil
+    }
+
     private static func walk(_ node: Any, label: String,
                              into acc: inout [(label: String, window: UsageWindow)]) {
         if let dict = node as? [String: Any] {
@@ -83,13 +123,15 @@ enum UsageParser {
         var w = UsageWindow()
         for (k, v) in dict {
             let lk = k.lowercased()
-            if lk.contains("remaining") { w.remaining = number(v) }
+            // null/비숫자 값으로 기존 값을 덮어쓰지 않도록 항상 가드한다
+            // (claude.ai의 used_dollars/limit_dollars 등이 null로 와도 안전).
+            if lk.contains("remaining") { if let n = number(v) { w.remaining = n } }
             else if lk.contains("utiliz") {
                 // claude.ai: utilization 은 0~100 퍼센트.
                 if let u = number(v) { w.used = u; w.limit = 100 }
             }
-            else if lk.contains("used") { w.used = number(v) }
-            else if lk.contains("limit") || lk.contains("total") || lk.contains("cap") { w.limit = number(v) }
+            else if lk.contains("used") { if let n = number(v) { w.used = n } }
+            else if lk.contains("limit") || lk.contains("total") || lk.contains("cap") { if let n = number(v) { w.limit = n } }
             else if lk.contains("reset") { w.resetsAt = date(v) }
         }
         return (w.usedFraction != nil || w.resetsAt != nil) ? w : nil
